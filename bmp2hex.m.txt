@@ -1,0 +1,88 @@
+
+//MATLAB Code to convert a bmp image into hex format acceptable by Verilog
+//produced by chatGPT
+
+% Read the grayscale image
+img = imread('lena512.bmp'); % Replace 'image.png' with your image file
+
+% Ensure the image is in grayscale
+if size(img, 3) == 3
+    img = rgb2gray(img); % Convert to grayscale if the image is RGB
+end
+
+% Get the image dimensions
+[rows, cols] = size(img);
+
+% Open the file to write the hex values
+fileID = fopen('image_data.hex', 'w'); % This creates and writes to the hex file
+
+% Loop through each pixel and write its hexadecimal representation with address
+address = 0; % Starting address
+
+for i = 1:rows
+    for j = 1:cols
+        % Convert the pixel value to hexadecimal
+        hexValue = sprintf('%02X', img(i, j)); % 2-digit hex representation
+        
+        % Write the memory address and corresponding hex value to the file
+        fprintf(fileID, '%04X   %s\n', address, hexValue); 
+        address = address + 1; % Increment address for next pixel
+    end
+end
+
+% Close the file
+fclose(fileID);
+
+disp('Hex file has been generated successfully!');
+
+
+
+
+
+modified version for tighter packing 
+% Read the grayscale image
+img = imread('lena512.bmp'); % Replace 'image.png' with your image file
+
+% Ensure the image is in grayscale
+if size(img, 3) == 3
+    img = rgb2gray(img); % Convert to grayscale if the image is RGB
+end
+
+% Get the image dimensions
+[rows, cols] = size(img);
+
+% Open the file to write the hex values
+fileID = fopen('image_data.hex', 'w'); % This creates and writes to the hex file
+
+% Loop through each pixel and write its hexadecimal representation with address
+address = 0; % Starting address
+
+for i = 1:(rows)
+    for j = (1:4:cols - 3)
+        % Convert the pixel value to hexadecimal
+        hexValue1 = sprintf('%02X', img(i, j)); % 2-digit hex representation
+        hexValue2= sprintf('%02X', img(i, j+1)); % 2-digit hex representation
+        hexValue3 = sprintf('%02X', img(i, j+2)); % 2-digit hex representation
+        hexValue4 = sprintf('%02X', img(i, j+3)); % 2-digit hex representation
+
+        % Write the memory address and corresponding hex value to the file
+        fprintf(fileID, '%04X   %s%s%s%s\n', address, hexValue4,hexValue3,hexValue2,hexValue1); 
+        address = address + 1; % Increment address for next pixel
+    end
+end
+
+% Close the file
+fclose(fileID);
+
+disp('Hex file has been generated successfully!');
+
+
+
+//to read 8x8 - arrangement of address
+
+0 1 2 3 4 ....127
+128 ....
+
+
+..............65535
+
